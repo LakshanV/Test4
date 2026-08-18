@@ -28,7 +28,7 @@
       "id": 5,
       "task": "Verify npm test and npm run build succeed",
       "status": "in_progress",
-      "notes": "Still awaiting full command output showing both required commands complete successfully with no errors."
+      "notes": "Awaiting direct terminal output proving required commands succeed without errors; no such output has been provided yet."
     }
   ],
   "decisions": [
@@ -40,5 +40,5 @@
     "Need terminal evidence that both npm test and npm run build pass without errors.",
     "Current provider evidence shows no branch diff or commits ahead, so verification must rely on direct command output rather than change tracking."
   ],
-  "last_instruction": "Run npm test and npm run build from the repo root and paste the complete terminal output for both commands exactly as produced, including the final success lines or any errors."
+  "last_instruction": "Run npm test from the repo root and paste the complete terminal output exactly as produced, from the command invocation through the final pass/fail summary."
 }
