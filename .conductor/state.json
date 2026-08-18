@@ -1,6 +1,45 @@
 {
-  "plan": [],
-  "decisions": [],
-  "concerns": [],
-  "last_instruction": ""
+  "plan": [
+    {
+      "id": 1,
+      "task": "Scaffold Vite + TypeScript app with Vitest configuration",
+      "status": "done",
+      "notes": "Scaffold in place: package.json, tsconfig.json, vite.config.ts (Vitest via vitest/config), index.html, src/main.ts, src/style.css, src/split.ts (toCents stub), src/split.test.ts, .gitignore. npm test and npm run build both pass."
+    },
+    {
+      "id": 2,
+      "task": "Implement pure split calculation in src/split.ts including even and weighted shares with deterministic cent-rounding",
+      "status": "todo",
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "task": "Add Vitest coverage for even split, weighted split, tax+tip, and exact-sum invariant",
+      "status": "todo",
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "task": "Build accessible responsive UI in index.html + src/main.ts with live share updates",
+      "status": "todo",
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "task": "Verify npm test and npm run build succeed",
+      "status": "todo",
+      "notes": "Will verify after scaffold and implementation exist."
+    }
+  ],
+  "decisions": [
+    "The calculation logic must live in src/split.ts and the UI must consume that module.",
+    "Money is carried as integer cents in src/split.ts so shares can sum exactly to the total.",
+    "Vitest is configured inside vite.config.ts using defineConfig from 'vitest/config'; build script is 'tsc && vite build' so typecheck gates the build."
+  ],
+  "concerns": [
+    "Need evidence that rounding is deterministic and that shares sum exactly to the computed total in cents.",
+    "Need verification that both npm test and npm run build pass without errors.",
+    "npm 11 blocks esbuild's postinstall by default; package.json carries an allowScripts entry for esbuild@0.28.2 so vite build works on a fresh install."
+  ],
+  "last_instruction": "Initialize the repository as a Vite + TypeScript app with Vitest configured, creating the basic project skeleton needed for this brief (including package.json, Vite/TypeScript config, index.html, and src entry files). Do not implement the full splitter yet; just get the scaffold in place and then report the resulting branch diff plus the exact output of npm test and npm run build."
 }
