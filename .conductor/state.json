@@ -15,33 +15,30 @@
     {
       "id": 3,
       "task": "Add Vitest coverage for even split, weighted split, tax+tip, and exact-sum invariant",
-      "status": "in_progress",
-      "notes": "A large src/split.test.ts exists, but we still have no inspected contents or npm test evidence proving it satisfies the required behavioral coverage."
+      "status": "done",
+      "notes": "Inspected src/split.test.ts. It explicitly covers even split, weighted split, tax+tip behavior, deterministic rounding/remainder placement, and a large generated exact-sum invariant sweep."
     },
     {
       "id": 4,
       "task": "Build accessible responsive UI in index.html + src/main.ts with live share updates",
       "status": "done",
-      "notes": "index.html + src/main.ts + src/style.css implement 'The Check': add/remove people, bill/tax/tip inputs, tipBasis select, even vs weighted toggle, per-person weights, live per-person shares. Verified in headless Chromium: live updates, focus management, validation, empty state, no console errors."
+      "notes": "Previously inspected index.html and src/main.ts for the live controls/rendering, and src/style.css now evidences responsive layout, focus-visible states, and accessible helper patterns."
     },
     {
       "id": 5,
       "task": "Verify npm test and npm run build succeed",
-      "status": "done",
-      "notes": "npm test: 35 passed. npm run build: exit 0."
+      "status": "in_progress",
+      "notes": "Need full command output showing both required commands complete successfully with no errors."
     }
   ],
   "decisions": [
     "The calculation logic must live in src/split.ts and the UI must consume that module.",
     "Use integer cents in the pure calculation so exact-sum behavior can be guaranteed.",
-    "Deterministic remainder distribution is implemented with the largest-remainder method and ascending index as the tiebreaker.",
-    "UI reads the bill as a pre-tax subtotal (field labelled 'Bill amount', hint 'Before tax and tip') to match splitBill's contract; the receipt shows the derived grand total.",
-    "Per-person share elements are plain spans rather than <output>, whose implicit aria-live would announce every share on every keystroke; one debounced role=status region announces the settled total instead."
+    "Deterministic remainder distribution is implemented with the largest-remainder method and ascending index as the tiebreaker."
   ],
   "concerns": [
-    "Need executable evidence that splitBill behaves correctly in the required scenarios, not just that the implementation looks plausible.",
-    "Weight quantisation at 1e-6 precision may collapse extremely small differences between weights; watch whether tests or UI requirements expose that as a problem.",
-    "Receipt caption/foot originally used --paper-shade at 1.65:1 contrast; fixed with --paper-dim (5.3:1). --paper-shade is now reserved for the decorative dot leaders."
+    "Need terminal evidence that both npm test and npm run build pass without errors.",
+    "Current provider evidence shows no branch diff or commits ahead, so verification must rely on direct command output rather than change tracking."
   ],
-  "last_instruction": "Implement the full responsive, accessible UI wired to splitBill in src/split.ts: users must be able to add/remove people, enter total, tax, and tip, choose even versus weighted mode, edit weights in weighted mode, and see each person's share update live. After that, run npm run build and report the branch diff, the full contents of index.html and src/main.ts, and the build output."
+  "last_instruction": "Execute the final verification by running npm test and npm run build from the repo root, then report the full terminal output for both commands."
 }
