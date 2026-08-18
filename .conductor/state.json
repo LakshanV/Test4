@@ -10,13 +10,13 @@
       "id": 2,
       "task": "Implement pure split calculation in src/split.ts including even and weighted shares with deterministic cent-rounding",
       "status": "done",
-      "notes": "src/split.ts exports splitBill (even + weighted modes, tax/tip percentages, optional tipBasis) and distributeCents (largest-remainder allocation over BigInt integer math). Verified against 20k randomised cases in a throwaway test: shares always sum exactly to totalCents."
+      "notes": "Inspected src/split.ts. It exposes splitBill and distributeCents, supports even and weighted modes, computes subtotal/tax/tip/total in cents, and deterministically assigns rounding remainders by largest remainder with index tiebreaking."
     },
     {
       "id": 3,
       "task": "Add Vitest coverage for even split, weighted split, tax+tip, and exact-sum invariant",
-      "status": "todo",
-      "notes": ""
+      "status": "done",
+      "notes": "src/split.test.ts now has 35 tests across 9 groups: toCents/fromCents, even split, weighted split, tax+tip (both tipBasis values), awkward fractions with explicit remainder placement, a 9000-case exact-sum sweep, determinism, and input validation. All pass."
     },
     {
       "id": 4,
@@ -28,21 +28,19 @@
       "id": 5,
       "task": "Verify npm test and npm run build succeed",
       "status": "todo",
-      "notes": "Still need exact command output as evidence."
+      "notes": "Need exact command output as evidence once tests and UI are in place."
     }
   ],
   "decisions": [
     "The calculation logic must live in src/split.ts and the UI must consume that module.",
     "Use integer cents in the pure calculation so exact-sum behavior can be guaranteed.",
-    "Tax and tip are computed from the rounded subtotal in cents, not the raw input, so sub-cent amounts lost to rounding cannot reappear as tax or tip.",
-    "Rounding remainder is allocated by the largest-remainder method with ties broken by ascending index, making shares a deterministic function of the inputs.",
-    "tipBasis defaults to 'subtotal' (tip on the pre-tax amount); 'postTax' is opt-in."
+    "Deterministic remainder distribution is implemented with the largest-remainder method and ascending index as the tiebreaker.",
+    "toCents collapses to 12 significant digits before rounding, so a decimal .5 tie such as 1.005 rounds away from zero instead of being pulled down by binary representation error."
   ],
   "concerns": [
-    "Need evidence that rounding is deterministic and that shares sum exactly to the computed total in cents.",
-    "Need verification that both npm test and npm run build pass without errors.",
-    "Need to confirm the chosen API from src/split.ts is straightforward for src/main.ts to consume.",
-    "Task 3 still owns the committed Vitest coverage; src/split.test.ts currently only covers toCents."
+    "Need executable evidence that splitBill behaves correctly in the required scenarios, not just that the implementation looks plausible.",
+    "Weight quantisation at 1e-6 precision may collapse extremely small differences between weights; watch whether tests or UI requirements expose that as a problem.",
+    "Need verification that both npm test and npm run build pass without errors."
   ],
-  "last_instruction": "Implement the pure calculation module in src/split.ts so it satisfies the brief: split a bill among N people with tax % and tip %, support both even and weighted modes, round every share to whole cents, and distribute any rounding remainder deterministically so the shares sum exactly to the computed total. Do not change the UI yet. Afterward, report the branch diff and the full contents of src/split.ts."
+  "last_instruction": "Replace src/split.test.ts with a full Vitest suite for the split module that covers the brief end-to-end: even split, weighted split, tax+tip, and at least one awkward-fraction case proving the shares sum exactly to totalCents with deterministic remainder distribution. Use npm test to confirm the suite passes, then report the branch diff, the full contents of src/split.test.ts, and the npm test output."
 }

@@ -67,7 +67,11 @@ function roundHalfAwayFromZero(value: number): number {
 
 /** Round a currency amount to whole cents, away from zero on a .5 tie. */
 export function toCents(amount: number): number {
-  return roundHalfAwayFromZero(amount * 100)
+  // Scaling by 100 can land just short of a .5 boundary that the decimal value
+  // sits exactly on -- 1.005 * 100 is 100.49999999999999 -- which would round
+  // the wrong way. Collapsing to 12 significant digits first discards that
+  // representation error while leaving any real difference intact.
+  return roundHalfAwayFromZero(Number((amount * 100).toPrecision(12)))
 }
 
 /** Convert whole cents back to a currency amount. */
