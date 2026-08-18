@@ -3,13 +3,163 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bill Splitter</title>
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Split a bill with tax and tip, evenly or by weight, down to the exact cent."
+    />
+    <title>The Check — split a bill to the cent</title>
   </head>
   <body>
-    <main id="app">
-      <h1>Bill Splitter</h1>
-      <p>Scaffold in place. The splitter UI is not implemented yet.</p>
-    </main>
+    <div id="app">
+      <header class="masthead">
+        <p class="masthead__eyebrow">Everyone's share, to the cent</p>
+        <h1 class="masthead__wordmark">The Check</h1>
+      </header>
+
+      <main class="layout">
+        <form class="controls" id="bill-form" novalidate>
+          <section class="panel" aria-labelledby="bill-heading">
+            <h2 class="panel__title" id="bill-heading">The bill</h2>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="subtotal">Bill amount</label>
+                <span class="input-wrap" data-prefix="$">
+                  <input
+                    id="subtotal"
+                    name="subtotal"
+                    type="number"
+                    inputmode="decimal"
+                    min="0"
+                    step="0.01"
+                    value="84.50"
+                    autocomplete="off"
+                    aria-describedby="subtotal-hint"
+                  />
+                </span>
+                <p class="hint" id="subtotal-hint">Before tax and tip</p>
+              </div>
+
+              <div class="field">
+                <label for="tax">Tax</label>
+                <span class="input-wrap" data-suffix="%">
+                  <input
+                    id="tax"
+                    name="tax"
+                    type="number"
+                    inputmode="decimal"
+                    min="0"
+                    step="0.001"
+                    value="8.875"
+                    autocomplete="off"
+                  />
+                </span>
+              </div>
+
+              <div class="field">
+                <label for="tip">Tip</label>
+                <span class="input-wrap" data-suffix="%">
+                  <input
+                    id="tip"
+                    name="tip"
+                    type="number"
+                    inputmode="decimal"
+                    min="0"
+                    step="1"
+                    value="20"
+                    autocomplete="off"
+                  />
+                </span>
+              </div>
+
+              <div class="field">
+                <label for="tip-basis">Tip on</label>
+                <select id="tip-basis" name="tip-basis">
+                  <option value="subtotal" selected>The bill before tax</option>
+                  <option value="postTax">The bill plus tax</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <fieldset class="segmented">
+              <legend class="panel__title">Split style</legend>
+              <div class="segmented__track">
+                <input
+                  class="visually-hidden"
+                  type="radio"
+                  id="mode-even"
+                  name="mode"
+                  value="even"
+                  checked
+                />
+                <label for="mode-even">Even</label>
+                <input
+                  class="visually-hidden"
+                  type="radio"
+                  id="mode-weighted"
+                  name="mode"
+                  value="weighted"
+                />
+                <label for="mode-weighted">By weight</label>
+              </div>
+              <p class="hint" id="mode-hint">Everyone pays the same, give or take a cent.</p>
+            </fieldset>
+          </section>
+
+          <section class="panel" aria-labelledby="people-heading">
+            <div class="panel__head">
+              <h2 class="panel__title" id="people-heading">Who's in</h2>
+              <button type="button" class="btn" id="add-person">Add person</button>
+            </div>
+
+            <ul class="people" id="people"></ul>
+            <p class="empty" id="people-empty" hidden>
+              No one's on the check yet. Add someone to start splitting.
+            </p>
+          </section>
+        </form>
+
+        <aside class="results" aria-labelledby="check-heading">
+          <h2 class="visually-hidden" id="check-heading">Each person's share</h2>
+
+          <p class="error" id="error" role="alert" hidden></p>
+
+          <div class="receipt" id="receipt">
+            <p class="receipt__banner">— Guest check —</p>
+            <div class="receipt__block" id="receipt-lines"></div>
+            <div class="receipt__totalblock" id="receipt-total"></div>
+            <p class="receipt__caption">Each person pays</p>
+            <ol class="receipt__shares" id="receipt-shares"></ol>
+            <p class="receipt__stamp" id="receipt-stamp" hidden></p>
+            <p class="receipt__foot" id="receipt-foot"></p>
+          </div>
+        </aside>
+      </main>
+
+      <p class="visually-hidden" id="live-summary" role="status"></p>
+    </div>
+
+    <template id="person-template">
+      <li class="person">
+        <span class="person__marker" aria-hidden="true"></span>
+        <input class="person__name" type="text" autocomplete="off" placeholder="Add a name" />
+        <input
+          class="person__weight"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          step="0.5"
+          value="1"
+        />
+        <button type="button" class="person__remove">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </li>
+    </template>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

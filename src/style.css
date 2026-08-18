@@ -1,15 +1,490 @@
+/* ---------------------------------------------------------------------------
+   The Check — a dark diner-booth interface wrapped around one light artifact:
+   the receipt. Every money value is monospaced with tabular figures so digits
+   hold their column while shares update on each keystroke.
+   ------------------------------------------------------------------------- */
+
 :root {
-  color-scheme: light dark;
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  line-height: 1.5;
+  color-scheme: dark;
+
+  --ink: #12211f;
+  --ink-raised: #1b2e2b;
+  --ink-sunk: #0d1917;
+  --ink-line: #2c433f;
+
+  --paper: #f7f4ec;
+  --paper-shade: #c7c0ae; /* dot leaders only — decorative, never text */
+  --paper-dim: #6b6558;
+  --paper-ink: #23201a;
+  --paper-green: #2f6b57;
+
+  --citrus: #e8b33c;
+  --mint: #7fcbb0;
+
+  --text: #e8efec;
+  --text-dim: #93aaa4;
+
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --radius: 14px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-ui);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
 }
 
 #app {
-  max-width: 40rem;
+  max-width: 68rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: clamp(1.75rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2rem) 4rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+/* --- masthead ------------------------------------------------------------ */
+
+.masthead {
+  margin-bottom: clamp(1.75rem, 5vw, 2.75rem);
+}
+
+.masthead__eyebrow {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--citrus);
+}
+
+.masthead__wordmark {
+  margin: 0;
+  font-size: clamp(2.5rem, 9vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+/* --- layout -------------------------------------------------------------- */
+
+.layout {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  align-items: start;
+}
+
+.controls {
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.5rem);
+  min-width: 0;
+}
+
+@media (min-width: 62rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 23rem;
+  }
+
+  .results {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+/* --- panels and fields --------------------------------------------------- */
+
+.panel {
+  margin: 0;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  background: var(--ink-raised);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--radius);
+}
+
+.panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel__title {
+  margin: 0 0 0.9rem;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel__head .panel__title {
+  margin-bottom: 0;
+}
+
+.field-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.field label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--ink-sunk);
+  color: var(--text);
+  border: 1px solid var(--ink-line);
+  border-radius: 9px;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--citrus);
+}
+
+input[type='text'] {
+  font-family: var(--font-ui);
+}
+
+select {
+  font-family: var(--font-ui);
+}
+
+input::placeholder {
+  color: var(--text-dim);
+  opacity: 1;
+}
+
+input[aria-invalid='true'] {
+  border-color: var(--citrus);
+}
+
+.input-wrap {
+  position: relative;
+  display: block;
+}
+
+.input-wrap::before,
+.input-wrap::after {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.input-wrap[data-prefix]::before {
+  content: attr(data-prefix);
+  left: 0.8rem;
+}
+
+.input-wrap[data-prefix] input {
+  padding-left: 1.85rem;
+}
+
+.input-wrap[data-suffix]::after {
+  content: attr(data-suffix);
+  right: 2.4rem;
+}
+
+/* --- split style toggle -------------------------------------------------- */
+
+.segmented {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.segmented__track {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-bottom: 0.55rem;
+  background: var(--ink-sunk);
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+}
+
+.segmented label {
+  display: grid;
+  place-items: center;
+  min-height: 2.4rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.segmented input:checked + label {
+  background: var(--citrus);
+  color: #1a1206;
+}
+
+.segmented input:focus-visible + label {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+/* --- people -------------------------------------------------------------- */
+
+.btn {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  background: transparent;
+  color: var(--citrus);
+  border: 1px solid var(--citrus);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--citrus);
+  color: #1a1206;
+}
+
+.people {
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.people:empty {
+  margin: 0;
+}
+
+.person {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.45rem 0;
+  border-bottom: 1px dashed var(--ink-line);
+}
+
+.person:last-child {
+  border-bottom: 0;
+}
+
+.person__marker {
+  width: 7px;
+  height: 7px;
+  background: var(--citrus);
+  opacity: 0.55;
+  rotate: 45deg;
+}
+
+.person__weight {
+  width: 5.75rem;
+}
+
+.person__remove {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.person__remove:hover {
+  background: var(--ink-sunk);
+  color: var(--citrus);
+}
+
+.empty {
+  margin: 0.9rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* --- error --------------------------------------------------------------- */
+
+.error {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  background: rgba(232, 179, 60, 0.12);
+  border-left: 3px solid var(--citrus);
+  border-radius: 0 9px 9px 0;
+  font-size: 0.9rem;
+}
+
+/* --- the receipt --------------------------------------------------------- */
+
+.receipt {
+  position: relative;
+  padding: 1.5rem 1.25rem 2.5rem;
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: 3px 3px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  box-shadow: 0 20px 45px -22px rgba(0, 0, 0, 0.85);
+}
+
+/* Scalloped tear along the bottom edge: paper bumps punched out of an ink
+   strip that matches the page behind it. */
+.receipt::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 14px;
+  background: radial-gradient(circle at 50% 0, var(--paper) 5px, var(--ink) 5.5px) repeat-x;
+  background-size: 14px 14px;
+}
+
+.receipt__banner {
+  margin: 0 0 1.1rem;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-green);
+}
+
+.receipt__caption {
+  margin: 1.35rem 0 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+.receipt__shares {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.receipt__totalblock {
+  margin-top: 0.8rem;
+  padding-top: 0.65rem;
+  border-top: 3px double var(--paper-ink);
+}
+
+.line {
+  display: grid;
+  grid-template-columns: auto minmax(1.5rem, 1fr) auto;
+  gap: 0.4rem;
+  align-items: baseline;
+  padding: 0.2rem 0;
+}
+
+.line__label {
+  font-size: 0.76rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.line__leader {
+  border-bottom: 1px dotted var(--paper-shade);
+  translate: 0 -0.3em;
+}
+
+.line__value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.receipt__totalblock .line__label {
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.receipt__totalblock .line__value {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.receipt__stamp {
+  margin: 1.25rem 0 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--paper-green);
+}
+
+.receipt__stamp--off {
+  color: #a3452b;
+  font-weight: 700;
+}
+
+.receipt__foot {
+  margin: 0.9rem 0 0;
+  text-align: center;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
